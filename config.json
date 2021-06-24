@@ -1,0 +1,16 @@
+{
+    "SANDBOX": {
+        "clientId": "Muhammad-FIrst-SBX-ff78bdb77-cfd416fc",
+        "clientSecret": "SBX-f78bdb7789e8-7ae6-4fc9-9bde-4138",
+        "devid": "7b4a6a7d-b32c-43db-a133-5a94df73d921",
+        "redirectUri": "-- redirect uri ---",
+        "baseUrl": "api.sandbox.ebay.com"
+    },
+    "PRODUCTION": {
+        "clientId": "Muhammad-FIrst-PRD-47cf12021-8c7ab553",
+        "clientSecret": "PRD-7cf120216f4d-eafb-4285-a289-09fe",
+        "devid": "7b4a6a7d-b32c-43db-a133-5a94df73d921",
+        "redirectUri": "-- redirect uri ---",
+        "baseUrl": "api.ebay.com"
+    }
+}
