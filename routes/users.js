@@ -1,7 +1,8 @@
 var express = require("express");
 var router = express.Router();
 let ebay = require("../component/oauthToken");
-var url = require("url");
+const dbHandler = require("../database/dbHandler");
+const { response } = require("../helpers/response");
 
 /* GET users Token. */
 router.post("/auth/token", async (req, res, next) => {
@@ -52,6 +53,90 @@ router.post("/orders", async (req, res, next) => {
   }
 
   res.send(finalObject);
+});
+
+router.post("/order/dispatch", async (req, res) => {
+  let orderDispatch = await ebay.ordersDispatched(
+    req.body.token,
+    req.body.lineItemId,
+    req.body.quantity,
+    req.body.shippedDate,
+    req.body.shippingCarrierCode,
+    req.body.trackingNumber,
+    req.body.orderId
+  );
+
+  res.send(orderDispatch);
+});
+
+router.post("/login", async (req, res) => {
+  console.log("Hello i am in getUser Function");
+  let result;
+  try {
+    let data = req.body;
+    result = await dbHandler.getItem("users", {
+      where: {
+        username: data.username,
+        password: data.password,
+      },
+    });
+    if (result) {
+      return response(true, "Successfully Retrieved", result, res);
+    } else {
+      return response(false, "User Not Exist", result, res);
+    }
+  } catch (error) {
+    console.log("Error = ", error);
+    return response(false, "Failed to retrieved", error, res);
+  }
+});
+
+router.post("/register", async (req, res) => {
+  console.log("Hello i am in register Function");
+  let result;
+  try {
+    let data = req.body;
+    result = await dbHandler.getItem("users", {
+      where: {
+        id: data.id,
+      },
+    });
+    console.log("Result asdasdasd =====", result);
+    if (result) {
+      if (result.isAdmin) {
+        saveUser = await dbHandler.addItem("users", {
+          email: data.email,
+          username: data.username,
+          password: data.password,
+        });
+        return response(true, "Successfully Added", saveUser, res);
+      } else {
+        return response(false, "You have no access", result, res);
+      }
+    } else {
+      return response(false, "User Not Exist", result, res);
+    }
+  } catch (error) {
+    console.log("Error = ", error);
+    return response(false, "Faild to retrieved", error, res);
+  }
+});
+
+router.get("/count", async (req, res) => {
+  console.log("Hello i am in register Function");
+  let result;
+  try {
+    result = await dbHandler.getItems("users");
+    console.log("Result asdasdasd =====", result);
+    if (result) {
+      return response(true, "Successfully Added", result.length, res);
+    } else {
+      return response(false, "User Not Exist", result, res);
+    }
+  } catch (error) {
+    console.log("Error = ", error);
+    return response(false, "Faild to retrieved", error, res);
+  }
 });
 
 module.exports = router;

@@ -1,8 +1,6 @@
 let { clientId, clientSecret, token } = require("../config/keys");
 const EbayAuthToken = require("ebay-oauth-nodejs-client");
 const axios = require("axios").default;
-// let btoa = require("btoa");
-// let qs = require("qs");
 
 exports.generateURL = async () => {
   let res;
@@ -24,7 +22,7 @@ exports.generateURL = async () => {
     const authUrl = ebayAuthToken.generateUserAuthorizationUrl(
       "PRODUCTION",
       scopes
-      //  options
+      // options
     );
 
     console.log("Auth URL: === ", authUrl);
@@ -60,24 +58,6 @@ exports.generateUserAccessToken = async (code) => {
   return res;
 };
 
-// exports.applicationRequest = async () => {
-//   let res;
-//   try {
-//     const ebayAuthToken = new EbayAuthToken({
-//       clientId: clientId,
-//       clientSecret: clientSecret,
-//       grant_type: "authorization_code",
-//       // redirectUri: "https://api.ebay.com/oauth/api_scope",
-//     });
-//     const token = await ebayAuthToken.getApplicationToken("PRODUCTION");
-//     res = JSON.parse(token);
-//   } catch (err) {
-//     console.log(`Error = ${err}`);
-//     res = token;
-//   }
-//   return res;
-// };
-
 exports.getOrders = async (token, limit, date) => {
   let res;
   try {
@@ -99,6 +79,48 @@ exports.getOrders = async (token, limit, date) => {
     res = response.data;
   } catch (err) {
     console.log(`Error = ${err}`);
+  }
+  return res;
+};
+
+exports.ordersDispatched = async (
+  token,
+  lineItemId,
+  quantity,
+  shippedDate,
+  shippingCarrierCode,
+  trackingNumber,
+  orderId
+) => {
+  let res;
+  try {
+    let url;
+    let orderBodyObject = {
+      lineItems: [
+        {
+          lineItemId: lineItemId,
+          quantity: quantity,
+        },
+      ],
+      shippedDate: shippedDate,
+      shippingCarrierCode: shippingCarrierCode,
+      trackingNumber: trackingNumber,
+    };
+
+    let data = JSON.stringify(orderBodyObject);
+
+    url = `https://api.ebay.com/sell/fulfillment/v1/order/${orderId}/shipping_fulfillment`;
+    let response = await axios.post(url, data, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token,
+      },
+    });
+    res = response.status;
+    console.log("REsult =====", response.status);
+  } catch (err) {
+    console.log(`Errors = ${err.message}`);
+    res = err;
   }
   return res;
 };
